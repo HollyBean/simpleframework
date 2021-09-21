@@ -9,10 +9,7 @@ import org.simpleframework.util.ClassUtil;
 import org.simpleframework.util.ValidateUtil;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -80,5 +77,19 @@ public class BeanContainer {
 
     public Object getBean(Class<?> clazz) {
         return beanMap.get(clazz);
+    }
+
+    public Set<Class<?>> getImplementClassSet(Class<?> superClass) {
+        Set<Class<?>> classSet = getClasses();
+        if (ValidateUtil.isEmpty(classSet)) {
+            return null;
+        }
+        Set<Class<?>> result = new HashSet<>();
+        for (Class<?> aClass : classSet) {
+            if (superClass.isAssignableFrom(aClass)) {
+                result.add(aClass);
+            }
+        }
+        return result.size() == 0 ? null : result;
     }
 }

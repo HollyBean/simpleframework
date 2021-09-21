@@ -6,7 +6,7 @@ import org.simpleframework.ioc.annotation.Controller;
 
 @Controller
 public class HelloController {
-    @Autowired
+    @Autowired(value = "BoyHelloService")
     private HelloService helloService;
 
     public void sayHello() {

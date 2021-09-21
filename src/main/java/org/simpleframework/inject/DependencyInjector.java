@@ -26,9 +26,11 @@ public class DependencyInjector {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(Autowired.class)) {
+                    Autowired autowired = field.getAnnotation(Autowired.class);
+                    String autowiredValue = autowired.value();
                     Class<?> classType = field.getType();
                     Object targetObject = beanContainer.getBean(clazz);
-                    Object bean = beanContainer.getBean(classType);
+                    Object bean = getClassInstance(classType, autowiredValue);
                     if (bean == null) {
                         throw new RuntimeException("获取不到注入实例:" + classType.getSimpleName());
                     }
@@ -36,6 +38,29 @@ public class DependencyInjector {
                 }
             }
         }
+    }
+
+    private Object getClassInstance(Class<?> classType, String autowiredValue) {
+        Object bean = beanContainer.getBean(classType);
+        if (bean == null) {
+            Set<Class<?>> implementClassSet = beanContainer.getImplementClassSet(classType);
+            if (!ValidateUtil.isEmpty(implementClassSet)) {
+                if (ValidateUtil.isEmpty(autowiredValue)) {
+                    if (implementClassSet.size() == 1) {
+                        return implementClassSet.iterator().next();
+                    } else {
+                        throw new RuntimeException("具备多个实现类且未指定注入实例：" + classType.getSimpleName());
+                    }
+                } else {
+                    for (Class<?> implementClass : implementClassSet) {
+                        if (implementClass.getSimpleName().equals(autowiredValue)) {
+                            return beanContainer.getBean(implementClass);
+                        }
+                    }
+                }
+            }
+        }
+        return bean;
     }
 
     private void setFieldValue(Field field, Object targetObject, Object bean, boolean accessible) {
