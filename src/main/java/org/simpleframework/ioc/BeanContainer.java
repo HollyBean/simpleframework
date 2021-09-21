@@ -73,4 +73,12 @@ public class BeanContainer {
     public int size() {
         return beanMap.size();
     }
+
+    public Set<Class<?>> getClasses() {
+        return beanMap.keySet();
+    }
+
+    public Object getBean(Class<?> clazz) {
+        return beanMap.get(clazz);
+    }
 }
