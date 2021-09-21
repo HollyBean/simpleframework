@@ -1,6 +1,7 @@
 package org.simpleframework.ioc;
 
 import org.apache.log4j.Logger;
+import org.simpleframework.aop.annotation.Aspect;
 import org.simpleframework.ioc.annotation.Component;
 import org.simpleframework.ioc.annotation.Controller;
 import org.simpleframework.ioc.annotation.Repository;
@@ -31,7 +32,7 @@ public class BeanContainer {
     }
     // 定义需要注入的Bean标签
     private static final List<Class<? extends Annotation>> BEAN_ANNOTATION =
-            Arrays.asList(Controller.class, Service.class, Repository.class, Component.class);
+            Arrays.asList(Controller.class, Service.class, Repository.class, Component.class, Aspect.class);
     // 定义存储使用的map
     private Map<Class<?>, Object> beanMap = new ConcurrentHashMap<>();
     private boolean loaded = false;
@@ -79,6 +80,10 @@ public class BeanContainer {
         return beanMap.get(clazz);
     }
 
+    public void addBean(Class<?> clazz, Object bean) {
+        beanMap.put(clazz, bean);
+    }
+
     public Set<Class<?>> getImplementClassSet(Class<?> superClass) {
         Set<Class<?>> classSet = getClasses();
         if (ValidateUtil.isEmpty(classSet)) {
@@ -87,6 +92,20 @@ public class BeanContainer {
         Set<Class<?>> result = new HashSet<>();
         for (Class<?> aClass : classSet) {
             if (superClass.isAssignableFrom(aClass)) {
+                result.add(aClass);
+            }
+        }
+        return result.size() == 0 ? null : result;
+    }
+
+    public Set<Class<?>> getClassByAnnotation(Class<? extends Annotation> annotation) {
+        Set<Class<?>> classSet = getClasses();
+        if (ValidateUtil.isEmpty(classSet)) {
+            return null;
+        }
+        Set<Class<?>> result = new HashSet<>();
+        for (Class<?> aClass : classSet) {
+            if (aClass.isAnnotationPresent(annotation)) {
                 result.add(aClass);
             }
         }
