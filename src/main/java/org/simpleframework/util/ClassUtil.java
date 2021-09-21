@@ -2,6 +2,7 @@ package org.simpleframework.util;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,5 +81,18 @@ public class ClassUtil {
 
     private static ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
+    }
+
+    /**
+     * 简单实现利用无参构造函数返回实例
+     * @param clazz Class实例
+     * @param accessible 设置可见性
+     * @param <T> 泛型转换
+     * @return
+     */
+    public static <T> T getBean(Class<?> clazz, boolean accessible) throws  Throwable{
+        Constructor<?> constructor = clazz.getDeclaredConstructor();
+        constructor.setAccessible(accessible);
+        return (T)constructor.newInstance();
     }
 }
